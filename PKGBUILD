@@ -22,8 +22,8 @@ source_x86_64=("${_appimage}::https://electron-dl.todoist.net/linux/Todoist-linu
                "trayIconDark.png")
 noextract=("${_appimage}")
 sha256sums_x86_64=('cf345453f64bc2805120b1441d2863cbc18ea70c3fb290d540cfc47a18d13706'
-                   'd6005b66c1e2d1f54fb3bfefe50d30e4dad52de4641b325880eb456f79e0a72a'
-                   '376f03fa646425cffbcc012bcec952e8f6465ef9b0aac0800669328a9934e777'
+                   'e43423bf753ccaa8aad5e20a68d8f29ba1a0862e288af94cdbd795103d3098aa'
+                   '2e3fbc0fabd27f60a4ba3da7839b32b39c8cf4863d79455856914c8206f059c5'
                    '4a637a2b54e01fc136da24d3d498524981e5c94f721e6dca6ebc4d1e98af4be5')
 
 prepare() {
