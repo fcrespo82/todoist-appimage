@@ -1,0 +1,32 @@
+--- todoist.desktop	2026-03-06 17:10:25.714545254 -0300
++++ todoist.mod.desktop	2026-03-06 16:42:34.642230851 -0300
+@@ -1,6 +1,6 @@
+ [Desktop Entry]
+ Name=Todoist
+-Exec=AppRun --ozone-platform=x11 %U
++Exec=env DESKTOPINTEGRATION=false /usr/bin/todoist --ozone-platform=x11 %U
+ Terminal=false
+ Type=Application
+ Icon=todoist
+@@ -9,6 +9,7 @@
+ MimeType=x-scheme-handler/todoist;x-scheme-handler/com.todoist;
+ Comment=The Best To-Do List App and Task Manager
+ Categories=Office;
++Actions=new-window;quick-add;ramble;
+ 
+ [Desktop Action new-window]
+ Name=New Home Window
+@@ -31,3 +32,13 @@
+ Name[zh_CN]=全新主页窗口
+ Name[zh_TW]=全新主頁窗口
+ Exec=todoist --new-window
++
++[Desktop Action quick-add]
++Name=Open quick add window
++Name[pt_BR]=Abrir janela de nova tarefa rápida
++Exec=xdg-open todoist://openquickadd
++
++[Desktop Action ramble]
++Name=Start Ramble
++Name[pt_BR]=Abrir Ramble
++Exec=xdg-open todoist://ramble

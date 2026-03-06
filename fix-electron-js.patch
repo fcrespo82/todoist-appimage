@@ -1,0 +1,43 @@
+--- electron.js	2026-03-06 17:10:25.947205982 -0300
++++ electron.mod.js	2026-03-06 16:24:17.430836347 -0300
+@@ -656,6 +656,9 @@
+     }
+ 
+     function Ee() {
++        if (!ye.quickAddWindow) {
++            ye.quickAddWindow = new QuickAddWindow()
++        }
+         return ye.quickAddWindow
+     }
+ 
+@@ -1214,8 +1217,10 @@
+                     return "windows/trayIcon.ico";
+                 case "darwin":
+                     return "mac/trayIconTemplate.png";
+-                default:
+-                    return "linux/trayIcon.png"
++                default: {
++                    let icon = process.env.TODOIST_DARK_ICON === "1" ? "linux/trayIconDark.png" : "linux/trayIcon.png";
++                    return icon
++                }
+             }
+         })();
+ 
+@@ -3363,7 +3368,7 @@
+         }
+     }
+     let ji = !1;
+-    class Vi {
++    class QuickAddWindow {
+         isDisabled = !1;
+         constructor() {
+             this.isReady = !1, this.prepareQuickAddWindow(), t.app.on("before-quit", (() => this.beforeQuitHandler())), t.autoUpdater.on("before-quit-for-update", (() => this.beforeQuitHandler()))
+@@ -3620,7 +3625,7 @@
+                 e && (Gi(e), Qi(e))
+             }(), We = !0, Ue.emit("multi-window-enabled"), jn();
+         const t = Boolean(Ee());
+-        _ && !t && Ie(new Vi), setTimeout((() => {
++        _ && !t && Ie(new QuickAddWindow), setTimeout((() => {
+             Dt.notifyWebAppAboutNewVersion()
+         }), 2500), Re(!0)
+     }

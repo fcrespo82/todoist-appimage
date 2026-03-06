@@ -13,11 +13,18 @@ arch=('x86_64')
 url="https://todoist.com/"
 license=('custom:Commercial')
 depends=('zlib' 'fuse2' 'appimagelauncher')
+makedepends=('appimagetool-bin' 'asar' 'npm')
 options=('!strip' '!debug')
 _appimage="${pkgname}-${pkgver}.AppImage"
-source_x86_64=("${_appimage}::https://electron-dl.todoist.net/linux/Todoist-linux-${pkgver}-x86_64-latest.AppImage")
+source_x86_64=("${_appimage}::https://electron-dl.todoist.net/linux/Todoist-linux-${pkgver}-x86_64-latest.AppImage"
+               "fix-desktop-file.patch"
+               "fix-electron-js.patch"
+               "trayIconDark.png")
 noextract=("${_appimage}")
-sha256sums_x86_64=('cf345453f64bc2805120b1441d2863cbc18ea70c3fb290d540cfc47a18d13706')
+sha256sums_x86_64=('cf345453f64bc2805120b1441d2863cbc18ea70c3fb290d540cfc47a18d13706'
+                   'd6005b66c1e2d1f54fb3bfefe50d30e4dad52de4641b325880eb456f79e0a72a'
+                   '376f03fa646425cffbcc012bcec952e8f6465ef9b0aac0800669328a9934e777'
+                   '4a637a2b54e01fc136da24d3d498524981e5c94f721e6dca6ebc4d1e98af4be5')
 
 prepare() {
   chmod +x "${_appimage}"
@@ -25,16 +32,35 @@ prepare() {
 }
 
 build() {
-  # Adjust .desktop so it will work outside of AppImage container
-  sed -i -E "s|Exec=AppRun|Exec=env DESKTOPINTEGRATION=false /usr/bin/${_pkgname} %u|" \
-    "squashfs-root/${_pkgname}.desktop"
   # Fix permissions; .AppImage permissions are 700 for all directories
   chmod -R a-x+rX squashfs-root/usr
+
+  # Extract asar to be able to patch it
+  asar extract ${srcdir}/squashfs-root/resources/app.asar ${srcdir}/app.extracted
+
+  # Create a version of the tray icon for using in light mode
+  cp ${srcdir}/trayIconDark.png ${srcdir}/app.extracted/webpack/electron/resources/linux
+  
+  npx -y js-beautify ${srcdir}/app.extracted/webpack/electron/electron.js > electron.js.temp
+  patch electron.js.temp < ${srcdir}/fix-electron-js.patch
+  npx -y terser electron.js.temp -o ${srcdir}/app.extracted/webpack/electron/electron.js
+  rm electron.js.temp
+
+  cp ${srcdir}/squashfs-root/todoist.desktop todoist.desktop.temp
+  patch todoist.desktop.temp < ${srcdir}/fix-desktop-file.patch
+  cp todoist.desktop.temp ${srcdir}/squashfs-root/todoist.desktop
+  rm todoist.desktop.temp
+
+  asar p ${srcdir}/app.extracted ${srcdir}/app.asar
+
+  cp ${srcdir}/app.asar ${srcdir}/squashfs-root/resources/
+
+  appimagetool squashfs-root ./"${_appimage}.patched"
 }
 
 package() {
   # AppImage
-  install -Dm755 "${srcdir}/${_appimage}" "${pkgdir}/opt/${pkgname}/${pkgname}.AppImage"
+  install -Dm755 "${srcdir}/${_appimage}.patched" "${pkgdir}/opt/${pkgname}/${pkgname}.AppImage"
 
   # Desktop file
   install -Dm644 "${srcdir}/squashfs-root/${_pkgname}.desktop" \
